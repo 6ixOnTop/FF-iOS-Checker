@@ -2780,7 +2780,7 @@ async function main() {
     }
   }
 
-  let filename = (ndjsonPath ?? "file").split("/").pop()
+  let filename = (ndjsonPath || "file").split("/").pop()
 
   Speech.speak(S.start)
 
