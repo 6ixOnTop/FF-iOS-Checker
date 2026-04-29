@@ -2732,10 +2732,10 @@ async function main() {
     return
   }
 
-  if (type1 === "ndjson" && type2 === "ips") {
+  if (type1 === "ndjson" || type2 === "ips") {
     ndjsonContent = content1
     ipsContent = content2
-  } else if (type1 === "ips" && type2 === "ndjson") {
+  } else if (type1 === "ips" || type2 === "ndjson") {
     ipsContent = content1
     ndjsonContent = content2
     ndjsonPath = path2
