@@ -2651,9 +2651,7 @@ async function readFile(path) {
       await fm.downloadFileFromiCloud(path)
     }
     content = fm.readString(path)
-  } catch(e) {
-  console.log(e)
-  }
+  } catch(e) {}
   if (!content) {
     try { content = FileManager.local().readString(path) } catch(e2) {}
   }
@@ -2733,12 +2731,11 @@ async function main() {
   }
 
   if (type1 === "ndjson" || type2 === "ips") {
-    ndjsonContent = content1
+    ndjsonContent = content1; ndjsonPath = path1
     ipsContent = content2
   } else if (type1 === "ips" || type2 === "ndjson") {
     ipsContent = content1
-    ndjsonContent = content2
-    ndjsonPath = path2
+    ndjsonContent = content2; ndjsonPath = path2
   } else {
     let a = new Alert()
     a.title = "Unrecognized file"
