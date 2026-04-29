@@ -1,22 +1,28 @@
 const DEVICE_LANG = (Device.language() || "en").toLowerCase().substring(0, 2)
 const SPEECH = {
+  ar: {
+    start: "جاري التحليل، انتظر حتى ينتهي.",
+    half: "الفحص وصل إلى خمسين بالمئة. انتظر قليلا.",
+    probe: "الفحص وصل إلى تسعين بالمئة. أوشك على الانتهاء.",
+    done: "انتهى الفحص. راجع النتائج بعناية.",
+  },
   pt: {
-    start:    "Analisando, aguarde o KellerSS terminar",
+    start:    "Analisando, aguarde o Checker iOS terminar",
     half:     "Scanner em cinquenta por cento. Aguarde mais um pouco.",
     probe:    "Scanner em noventa por cento. Aguarde mais um pouco.",
-    done:     "KellerSS finalizado. Analise os resultados com cuidado.",
+    done:     "Checker iOS finalizado. Analise os resultados com cuidado.",
   },
   en: {
-    start:    "Analyzing, please wait for KellerSS to finish.",
-    half:     "Scanner at fifty percent. Please wait a little longer.",
-    probe:    "Scanner at ninety percent. Almost done.",
-    done:     "KellerSS finished. Analyze the results carefully.",
+    start: "Analyzing, please wait for it to finish.",
+    half:  "Scanner at fifty percent. Please wait a little longer.",
+    probe: "Scanner at ninety percent. Almost done.",
+    done:  "Check finished. Analyze the results carefully.",
   },
   es: {
-    start:    "Analizando, espera que KellerSS termine.",
+    start:    "Analizando, espera que Checker iOS termine.",
     half:     "Escáner al cincuenta por ciento. Espera un poco más.",
     probe:    "Escáner al noventa por ciento. Ya casi termina.",
-    done:     "KellerSS finalizado. Analiza los resultados con cuidado.",
+    done:     "Checker iOS finalizado. Analiza los resultados con cuidado.",
   },
 }
 const S = SPEECH[DEVICE_LANG] || SPEECH["en"]
@@ -2645,7 +2651,9 @@ async function readFile(path) {
       await fm.downloadFileFromiCloud(path)
     }
     content = fm.readString(path)
-  } catch(e) {}
+  } catch(e) {
+  console.log(e)
+  }
   if (!content) {
     try { content = FileManager.local().readString(path) } catch(e2) {}
   }
@@ -2654,38 +2662,43 @@ async function readFile(path) {
 
 async function main() {
   let step1 = new Alert()
-  step1.title = "📋 Passo 1 de 3 — Relatório de Privacidade"
-  step1.message = "Vá em:\n\nAjustes → Privacidade e Segurança → Relatório de Privacidade de Apps\n\nRole até o final e toque em\n\"Ativar Relatório de Privacidade de Apps\"\n\nDepois toque em\n\"Exportar Relatório de Privacidade de Apps\"\ne salve o arquivo .ndjson em qualquer lugar (Arquivos, iCloud, etc)."
-  step1.addAction("Entendido, próximo →")
-  step1.addCancelAction("Cancelar")
+  step1.title = "📋 Step 1 of 3 — Privacy Report"
+  step1.message = "Go to:\n\nSettings → Privacy & Security → App Privacy Report\n\nScroll to the bottom and tap\n\"Turn On App Privacy Report\"\n\nThen tap\n\"Export App Privacy Report\"\nand save the .ndjson file anywhere (Files, iCloud, etc)."
+  step1.addAction("Got it, next →")
+  step1.addCancelAction("Cancel")
   if (await step1.present() === -1) { Script.complete(); return }
 
   let step2 = new Alert()
-  step2.title = "📊 Passo 2 de 3 — Dados de Análise"
-  step2.message = "Vá em:\n\nAjustes → Privacidade e Segurança → Análise e Melhorias\n\nAtive as opções:\n• Compartilhar análise do iPhone\n• Compartilhar análise do iCloud\n• Compartilhar com desenvolvedores de app\n\nDepois volte e toque em\n\"Dados de Análise\"\nRole até o final e selecione o arquivo mais recente começando com\n\"xp_amp_app_usage_dnu\"\n\nToque no arquivo → toque no ícone de compartilhar → Salvar em Arquivos."
-  step2.addAction("Entendido, próximo →")
-  step2.addCancelAction("Cancelar")
+  step2.title = "📊 Step 2 of 3 — Analytics Data"
+  step2.message = "Go to:\n\nSettings → Privacy & Security → Analytics & Improvements\n\nEnable:\n• Share iPhone Analytics\n• Share iCloud Analytics\n• Share with App Developers\n\nThen go back and tap\n\"Analytics Data\"\nScroll to the bottom and select the latest file starting with\n\"xp_amp_app_usage_dnu\"\n\nTap the file → Share icon → Save to Files."
+  step2.addAction("Got it, next →")
+  step2.addCancelAction("Cancel")
   if (await step2.present() === -1) { Script.complete(); return }
 
   let step3 = new Alert()
-  step3.title = "✅ Passo 3 de 3 — Selecionar arquivos"
-  step3.message = "Agora selecione os 2 arquivos salvos.\n\nVocê pode selecioná-los em qualquer ordem — o sistema identifica automaticamente cada um.\n\n📋 App_Privacy_Report.ndjson\n📊 xp_amp_app_usage_dnu*.ips"
-  step3.addAction("Selecionar arquivo 1")
-  step3.addCancelAction("Cancelar")
+  step3.title = "✅ Step 3 of 3 — Select Files"
+  step3.message = "Now select the 2 saved files.\n\nYou can select them in any order — the system will detect them automatically.\n\n📋 App_Privacy_Report.ndjson\n📊 xp_amp_app_usage_dnu*.ips"
+  step3.addAction("Select file 1")
+  step3.addCancelAction("Cancel")
   if (await step3.present() === -1) { Script.complete(); return }
 
   let path1 = await DocumentPicker.openFile()
   if (!path1) { Script.complete(); return }
   let content1 = await readFile(path1)
   if (!content1) {
-    let a = new Alert(); a.title = "Erro"; a.message = "Não foi possível ler o arquivo 1."; a.addAction("OK"); await a.present(); return
+    let a = new Alert()
+    a.title = "Error"
+    a.message = "Could not read file 1."
+    a.addAction("OK")
+    await a.present()
+    return
   }
 
   let notice2 = new Alert()
-  notice2.title = "Arquivo 2"
-  notice2.message = "Selecione o segundo arquivo (ou pule para analisar somente o primeiro)."
-  notice2.addAction("Selecionar arquivo 2")
-  notice2.addCancelAction("Pular")
+  notice2.title = "File 2"
+  notice2.message = "Select the second file (or skip to analyze only the first)."
+  notice2.addAction("Select file 2")
+  notice2.addCancelAction("Skip")
   let path2 = null
   let content2 = null
   if (await notice2.present() !== -1) {
@@ -2710,25 +2723,26 @@ async function main() {
 
   if (type2 && type1 === type2) {
     let a = new Alert()
-    a.title = "Arquivos do mesmo tipo"
+    a.title = "Same type files"
     a.message = type1 === "ndjson"
-      ? "Os 2 arquivos parecem ser App Privacy Reports. Selecione um xp_amp_app_usage_dnu*.ips como segundo arquivo."
-      : "Os 2 arquivos parecem ser dados de análise. Selecione um App_Privacy_Report.ndjson como primeiro arquivo."
+      ? "Both files seem to be App Privacy Reports. Select an xp_amp_app_usage_dnu*.ips file as the second file."
+      : "Both files seem to be analytics data. Select an App_Privacy_Report.ndjson as the first file."
     a.addAction("OK")
     await a.present()
     return
   }
 
-  if (type1 === "ndjson" || type2 === "ips") {
-    ndjsonContent = content1; ndjsonPath = path1
+  if (type1 === "ndjson" && type2 === "ips") {
+    ndjsonContent = content1
     ipsContent = content2
-  } else if (type1 === "ips" || type2 === "ndjson") {
+  } else if (type1 === "ips" && type2 === "ndjson") {
     ipsContent = content1
-    ndjsonContent = content2; ndjsonPath = path2
+    ndjsonContent = content2
+    ndjsonPath = path2
   } else {
     let a = new Alert()
-    a.title = "Arquivo não reconhecido"
-    a.message = "Não foi possível identificar o tipo dos arquivos.\n\nVerifique se selecionou:\n• App_Privacy_Report.ndjson\n• xp_amp_app_usage_dnu*.ips"
+    a.title = "Unrecognized file"
+    a.message = "Could not identify file types.\n\nMake sure you selected:\n• App_Privacy_Report.ndjson\n• xp_amp_app_usage_dnu*.ips"
     a.addAction("OK")
     await a.present()
     return
@@ -2736,8 +2750,8 @@ async function main() {
 
   if (!ndjsonContent) {
     let a = new Alert()
-    a.title = "App Privacy Report ausente"
-    a.message = "O arquivo App_Privacy_Report.ndjson é obrigatório.\n\nAjustes → Privacidade → Relatório de Privacidade de Apps → Exportar"
+    a.title = "Missing App Privacy Report"
+    a.message = "The App_Privacy_Report.ndjson file is required.\n\nSettings → Privacy → App Privacy Report → Export"
     a.addAction("OK")
     await a.present()
     return
@@ -2747,8 +2761,8 @@ async function main() {
   let validation = validateReport(entries)
   if (!validation.ok) {
     let a = new Alert()
-    a.title = "App Privacy Report inválido"
-    a.message = validation.reason + "\n\nExporte em: Ajustes → Privacidade → Relatório de Privacidade de Apps → Exportar"
+    a.title = "Invalid App Privacy Report"
+    a.message = validation.reason + "\n\nExport it from: Settings → Privacy → App Privacy Report → Export"
     a.addAction("OK")
     await a.present()
     return
@@ -2766,7 +2780,7 @@ async function main() {
     }
   }
 
-  let filename = (ndjsonPath || "arquivo").split("/").pop()
+  let filename = (ndjsonPath ?? "file").split("/").pop()
 
   Speech.speak(S.start)
 
